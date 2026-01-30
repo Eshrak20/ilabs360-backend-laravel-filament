@@ -115,6 +115,18 @@ return [
     |
     */
 
+
+    'auth' => [
+        'guard' => env('FILAMENT_AUTH_GUARD', 'web'),
+
+        // Optional callback for login
+        'authenticate' => function ($request) {
+            return \App\Models\User::where('email', $request->email)
+                ->where('is_active', true)
+                ->first();
+        },
+    ],
+
     'system_route_prefix' => 'filament',
 
 ];

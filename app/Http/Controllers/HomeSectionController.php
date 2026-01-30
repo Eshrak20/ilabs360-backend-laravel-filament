@@ -13,3 +13,4 @@ class HomeSectionController extends Controller
         return $this->response(true, 'Home Section fetched Successfully',$home_sections, 201);
     }
 }
+

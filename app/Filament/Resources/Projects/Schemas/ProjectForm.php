@@ -31,6 +31,7 @@ class ProjectForm
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
+                            ->reactive()
                             ->afterStateUpdated(
                                 fn($state, callable $set) =>
                                 $set('slug', Str::slug($state))

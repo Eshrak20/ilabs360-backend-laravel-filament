@@ -95,7 +95,8 @@ class ProjectController extends Controller
             // Media
             'banner'         => $p->banner,
             'thumbnail'      => $p->thumbnail,
-            'gallery_images' => $p->gallery_images ? json_decode($p->gallery_images, true) : [],
+            'gallery_images' => $p->gallery_images ?? [],
+
             'project_video'  => $p->project_video,
             'live_url'       => $p->live_url,
             'github_url'     => $p->github_url,

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Staff\Schemas;
 
+use App\Models\Staff;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class StaffForm
 {
@@ -21,84 +23,105 @@ class StaffForm
         return $schema->components([
 
             /* =======================
-             | Basic Information
+             | Identity
              ======================= */
-            Section::make('Basic Information')
+            Section::make('Identity')
+                ->description('Core staff identity information')
+                ->columns(2)
                 ->schema([
-                    Grid::make(3)->schema([
-                        TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
+                    TextInput::make('name')
+                        ->required()
+                        ->maxLength(255),
 
-                        TextInput::make('designation')
-                            ->required(),
+                    TextInput::make('designation'),
+                        // ->required(),
 
-                        TextInput::make('department'),
+                    TextInput::make('department')
+                        ->columnSpanFull(),
 
-                        TextInput::make('age')
-                            ->numeric()
-                            ->minValue(18)
-                            ->maxValue(80),
-                    ]),
+                    TextInput::make('age')
+                        ->numeric()
+                        ->minValue(18)
+                        ->maxValue(80),
                 ]),
 
             /* =======================
-             | Company Details
+             | Employment Information
              ======================= */
-            Section::make('Company Details')
+            Section::make('Employment Information')
+                ->description('Company related details')
+                ->columns(2)
                 ->schema([
-                    Grid::make(3)->schema([
-                        Select::make('employment_type')
-                            ->options([
-                                'Full-time' => 'Full-time',
-                                'Part-time' => 'Part-time',
-                                'Contract' => 'Contract',
-                                'Intern' => 'Intern',
-                            ]),
+                    Select::make('employment_type')
+                        ->options([
+                            'Full-time' => 'Full-time',
+                            'Part-time' => 'Part-time',
+                            'Contract'  => 'Contract',
+                            'Intern'    => 'Intern',
+                        ]),
 
-                        TextInput::make('years_in_company')
-                            ->numeric()
-                            ->minValue(0),
+                    TextInput::make('years_in_company')
+                        ->numeric()
+                        ->minValue(0),
 
-                        DatePicker::make('joining_date'),
-                    ]),
+                    DatePicker::make('joining_date')
+                        ->columnSpanFull(),
                 ]),
 
             /* =======================
-             | Skills & Bio
+             | Skills
              ======================= */
-            Section::make('Skills & Profile')
+            Section::make('Skills')
+                ->description('Professional skills & expertise')
                 ->schema([
                     TagsInput::make('skills')
-                        ->placeholder('Laravel, React, DevOps'),
+                        ->placeholder('Laravel, React, DevOps')
+                        ->columnSpanFull(),
+                ]),
 
+            /* =======================
+             | Biography
+             ======================= */
+            Section::make('Biography')
+                ->description('Detailed profile description')
+                ->schema([
                     RichEditor::make('bio')
                         ->columnSpanFull(),
                 ]),
 
             /* =======================
-             | Contact Information
+             | Contact Details
              ======================= */
-            Section::make('Contact Information')
+            Section::make('Contact Details')
+                ->description('Primary communication channels')
+                ->columns(2)
                 ->schema([
-                    Grid::make(3)->schema([
-                        TextInput::make('email')->email(),
-                        TextInput::make('phone'),
-                        TextInput::make('whatsapp_number'),
-                    ]),
+                    TextInput::make('email')->email(),
+                    TextInput::make('phone'),
 
-                    Grid::make(4)->schema([
-                        TextInput::make('facebook_url')->url(),
-                        TextInput::make('linkedin_url')->url(),
-                        TextInput::make('github_url')->url(),
-                        TextInput::make('portfolio_url')->url(),
-                    ]),
+                    TextInput::make('whatsapp_number')
+                        ->columnSpanFull(),
                 ]),
 
             /* =======================
-             | Media
+             | Social Links
              ======================= */
-            Section::make('Profile Photo')
+            Section::make('Social & Portfolio Links')
+                ->description('Online presence')
+                ->columns(2)
+                ->schema([
+                    TextInput::make('facebook_url')->url(),
+                    TextInput::make('linkedin_url')->url(),
+
+                    TextInput::make('github_url')->url(),
+                    TextInput::make('portfolio_url')->url(),
+                ]),
+
+            /* =======================
+             | Profile Image
+             ======================= */
+            Section::make('Profile Image')
+                ->description('Square image recommended')
                 ->schema([
                     FileUpload::make('image')
                         ->image()
@@ -106,23 +129,22 @@ class StaffForm
                         ->directory('staff')
                         ->imageEditor()
                         ->imageCropAspectRatio('1:1')
-                        ->maxSize(2048),
+                        ->maxSize(2048)
+                        ->columnSpanFull(),
                 ]),
 
             /* =======================
-             | Status & Ordering
+             | Visibility & Sorting
              ======================= */
-            Section::make('Status & Ordering')
+            Section::make('Visibility & Sorting')
+                ->description('Admin-only controls')
+                ->visible(fn() => Auth::user()?->role === 'admin')
+                ->columns(2)
                 ->schema([
-                    Grid::make(2)->schema([
-                        TextInput::make('position')
-                            ->numeric()
-                            ->default(1)
-                            ->minValue(1),
-
-                        Toggle::make('is_active')
-                            ->default(true),
-                    ]),
+                    TextInput::make('position')
+                        ->numeric()
+                        ->minValue(1)
+                        ->dehydrated(), // still saves to DB
                 ]),
         ]);
     }

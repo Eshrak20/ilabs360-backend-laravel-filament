@@ -36,7 +36,22 @@ class TestimonialForm
                             ])
                             ->default(5)
                             ->required(),
+
+                        TextInput::make('company_name')
+                            ->label('Company Name')
+                            ->maxLength(255),
+
+                        TextInput::make('company_title')
+                            ->label('Company Title / Designation')
+                            ->maxLength(255),
+
+                        FileUpload::make('company_image')   // New field
+                            ->label('Company Picture')
+                            ->image()
+                            ->disk('public')
+                            ->directory('testimonials/company'),
                     ]),
+
 
                     TextInput::make('short_description')
                         ->maxLength(255),

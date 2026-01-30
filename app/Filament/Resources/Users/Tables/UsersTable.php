@@ -7,7 +7,11 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class UsersTable
 {
@@ -15,39 +19,37 @@ class UsersTable
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('name')
+                    ->searchable(),
 
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('email')
+                    ->visible(fn() => Auth::user()?->role === 'admin'),
 
-                Tables\Columns\TextColumn::make('role')
+                TextColumn::make('role')
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'admin' => 'danger',
-                        'editor' => 'warning',
-                        default => 'success',
-                    }),
+                    ->visible(fn() => Auth::user()?->role === 'admin'),
 
-                Tables\Columns\IconColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label('Active')
-                    ->boolean()
-                    ->sortable(),
+                    ->visible(fn() => Auth::user()?->role === 'admin')
+                    ->disabled(
+                        fn($record) =>
+                        $record->id === Auth::id() && $record->role === 'admin'
+                    ),
 
-                Tables\Columns\IconColumn::make('web_view')
+
+                ToggleColumn::make('web_view')
                     ->label('Web')
-                    ->boolean()
-                    ->sortable(),
+                    ->visible(fn() => Auth::user()?->role === 'admin'),
 
-                Tables\Columns\TextColumn::make('created_at')
+
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('role')
+                SelectFilter::make('role')
                     ->options([
                         'admin' => 'Admin',
                         'editor' => 'Editor',
@@ -64,12 +66,12 @@ class UsersTable
                 EditAction::make(),
 
                 DeleteAction::make()
-                    ->visible(fn ($record) => $record->id !== auth()->id()),
+                    ->visible(fn($record) => $record->id !== auth()->id()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => auth()->user()?->role === 'admin'),
+                        ->visible(fn() => auth()->user()?->role === 'admin'),
                 ]),
             ]);
     }

@@ -16,6 +16,7 @@ class Blog extends Model
         'content_bng',
         'summary_bng',
         'featured_image',
+        'staff_id',
         'category_id',
         'status',
         'published_at',
@@ -38,7 +39,10 @@ class Blog extends Model
         // For Filament or web usage
         return $value;
     }
-
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class);
+    }
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

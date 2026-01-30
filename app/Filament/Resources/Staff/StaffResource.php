@@ -11,14 +11,68 @@ use App\Models\Staff;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class StaffResource extends Resource
 {
     protected static ?string $model = Staff::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user';
+    protected static string|UnitEnum|null $navigationGroup = 'Users';
+
+    /* =========================
+     | Access Control
+     ========================= */
+
+    public static function canViewAny(): bool
+    {
+        return auth()->check();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
+    public static function canEdit($record): bool
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        return $record->user_id === $user->id;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
+    /* =========================
+     | Query Restriction
+     ========================= */
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        $query = parent::getEloquentQuery();
+
+        // Admin → see all staff
+        if ($user->role === 'admin') {
+            return $query;
+        }
+
+        // User → see ONLY own staff profile
+        return $query->where('user_id', $user->id);
+    }
+
+    /* =========================
+     | Form & Table
+     ========================= */
 
     public static function form(Schema $schema): Schema
     {
@@ -32,17 +86,25 @@ class StaffResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListStaff::route('/'),
+            'index'  => ListStaff::route('/'),
             'create' => CreateStaff::route('/create'),
-            'edit' => EditStaff::route('/{record}/edit'),
+            'edit'   => EditStaff::route('/{record}/edit'),
         ];
+    }
+
+    /* =========================
+     | Auto attach logged-in user
+     ========================= */
+
+    protected static function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = auth()->id();
+        return $data;
     }
 }

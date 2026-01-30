@@ -13,21 +13,52 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class BlogResource extends Resource
 {
     protected static ?string $model = Blog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
+
+    // Use custom query to restrict normal users
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        // Admin → see all blogs
+        if ($user?->role === 'admin') {
+            return $query;
+        }
+
+        // Non-admin → only own blogs
+        return $query->where('staff_id', $user->staff?->id ?? 0);
+    }
+
+    // Form configuration
     public static function form(Schema $schema): Schema
     {
         return BlogForm::configure($schema);
     }
 
+    // Table configuration
     public static function table(Table $table): Table
     {
-        return BlogsTable::configure($table);
+        // Add author column in table dynamically
+        return BlogsTable::configure($table)
+            ->columns(array_merge(
+                BlogsTable::configure($table)->getColumns(),
+                [
+                    // Author name
+                    \Filament\Tables\Columns\TextColumn::make('staff.user.name')
+                        ->label('Author')
+                        ->sortable()
+                        ->searchable(),
+                ]
+            ));
     }
 
     public static function getRelations(): array

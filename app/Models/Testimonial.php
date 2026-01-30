@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Testimonial extends Model
 {
     protected $fillable = [
-        'name', 'short_description', 'description',
-        'star', 'image'
+        'name',
+        'company_name',
+        'company_title',
+        'company_image',   // Add this
+        'short_description',
+        'description',
+        'star',
+        'image',
     ];
+
 
     public function getImageAttribute($value)
     {

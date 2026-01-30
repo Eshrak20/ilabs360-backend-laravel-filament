@@ -59,9 +59,26 @@ class Staff extends Model
         'skills' => 'array',
         'is_active' => 'boolean',
     ];
+    public function blogs()
+    {
+        return $this->hasMany(Blog::class);
+    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    protected static function booted()
+    {
+        static::deleting(function ($user) {
+            $user->staff()?->delete();
+        });
+        static::created(function ($staff) {
+            // Set position = id after creation
+            if (!$staff->position) {
+                $staff->position = $staff->id;
+                $staff->saveQuietly(); // save without triggering events again
+            }
+        });
     }
 }

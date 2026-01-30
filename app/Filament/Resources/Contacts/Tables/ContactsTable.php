@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Contacts\Tables;
 
-use Filament\Forms\Components\Textarea;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Tiptap\Nodes\Text;
+use Filament\Tables\Columns\ToggleColumn;
 
 class ContactsTable
 {
@@ -16,7 +16,6 @@ class ContactsTable
     {
         return $table
             ->columns([
-
                 TextColumn::make('id')
                     ->sortable(),
 
@@ -28,20 +27,27 @@ class ContactsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('phone')
-                    ->toggleable(),
+                // TextColumn::make('phone')
+                //     ->toggleable(),
 
                 TextColumn::make('subject')
                     ->toggleable(),
 
-                TextColumn::make('message')
-                    ->toggleable(),
+                // TextColumn::make('message')
+                //     ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->since()
                     ->label('Received'),
+
+                ToggleColumn::make('is_read') // ✅ Correct toggle
+                    ->label('Read')
+                    // ->onColor('success')
+                    // ->offColor('danger')
+                    ->sortable(),
             ])
             ->recordActions([
+                ViewAction::make(), // ✅ Only view and delete
                 DeleteAction::make(),
             ])
             ->toolbarActions([

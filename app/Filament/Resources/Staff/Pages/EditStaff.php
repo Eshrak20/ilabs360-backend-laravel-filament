@@ -10,12 +10,12 @@ class EditStaff extends EditRecord
 {
     protected static string $resource = StaffResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            DeleteAction::make(),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         DeleteAction::make(),
+    //     ];
+    // }
 
     protected function getRedirectUrl(): string
     {

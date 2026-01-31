@@ -9,8 +9,19 @@ class StaffController extends Controller
 {
     public function index()
     {
-        $staffs = Staff::all();
+        $staffs = Staff::with('user')
+            ->whereHas('user', function ($query) {
+                $query->where('web_view', true);
+            })
+            ->get();
 
-        return $this->response(true, 'Staff information fetched successfully', $staffs, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff information fetched successfully',
+            'data'    => $staffs,
+            'meta'    => [
+                'total_staffs' => $staffs->count(),
+            ],
+        ], 200);
     }
 }

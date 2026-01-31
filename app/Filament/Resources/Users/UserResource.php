@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class UserResource extends Resource
@@ -30,8 +31,8 @@ class UserResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        if (auth()->user()?->role !== 'admin') {
-            $query->where('id', auth()->id());
+        if (Auth::user()?->role !== 'admin') {
+            $query->where('id', Auth::id());
         }
 
         return $query;
@@ -39,24 +40,24 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->check();
+        return Auth::check();
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return Auth::user()?->role === 'admin';
     }
 
     public static function canEdit($record): bool
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         return $user->role === 'admin' || $user->id === $record->id;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->role === 'admin';
+        return Auth::user()?->role === 'admin';
     }
 
     /* =========================

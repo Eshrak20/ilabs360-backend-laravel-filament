@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class StaffResource extends Resource
@@ -28,17 +29,17 @@ class StaffResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->check();
+        return Auth::check();
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return Auth::user()?->role === 'admin';
     }
 
     public static function canEdit($record): bool
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($user->role === 'admin') {
             return true;
@@ -49,7 +50,7 @@ class StaffResource extends Resource
 
     public static function canDelete($record): bool
     {
-        return auth()->user()?->role === 'admin';
+        return Auth::user()?->role === 'admin';
     }
 
     /* =========================
@@ -58,7 +59,7 @@ class StaffResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $query = parent::getEloquentQuery();
 
         // Admin → see all staff
@@ -104,7 +105,7 @@ class StaffResource extends Resource
 
     protected static function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = Auth::id();
         return $data;
     }
 }

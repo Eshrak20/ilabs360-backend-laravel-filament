@@ -66,12 +66,12 @@ class UsersTable
                 EditAction::make(),
 
                 DeleteAction::make()
-                    ->visible(fn($record) => $record->id !== auth()->id()),
+                    ->visible(fn($record) => $record->id !== Auth::id()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => auth()->user()?->role === 'admin'),
+                        ->visible(fn() => Auth::user()?->role === 'admin'),
                 ]),
             ]);
     }

@@ -26,7 +26,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 
 
 Route::get('/blogs', [BlogController::class, 'index']);
-Route::get('/blogs/{id}', [BlogController::class, 'show']);
+Route::get('/blogs/{slug}', [BlogController::class, 'show']);
 
 Route::get('/settings',[SettingsController::class, 'index']);
 Route::get('/social-links',[SocialLinkController::class, 'index']);

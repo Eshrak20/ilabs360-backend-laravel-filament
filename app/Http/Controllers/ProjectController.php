@@ -40,7 +40,10 @@ class ProjectController extends Controller
                 // Media
                 'banner'         => $p->banner,
                 'thumbnail'      => $p->thumbnail,
-                'gallery_images' => $p->gallery_images ?? [],
+                // 'gallery_images' => $p->gallery_images ?? [],
+                'gallery_images' => collect($p->gallery_images ?? [])
+                    ->map(fn($img) => $this->storageUrl($img))
+                    ->values(),
 
                 'project_video'  => $p->project_video,
                 'live_url'       => $p->live_url,
@@ -95,7 +98,10 @@ class ProjectController extends Controller
             // Media
             'banner'         => $p->banner,
             'thumbnail'      => $p->thumbnail,
-            'gallery_images' => $p->gallery_images ?? [],
+            // 'gallery_images' => $p->gallery_images ?? [],
+            'gallery_images' => collect($p->gallery_images ?? [])
+                ->map(fn($img) => $this->storageUrl($img))
+                ->values(),
 
             'project_video'  => $p->project_video,
             'live_url'       => $p->live_url,
@@ -114,5 +120,9 @@ class ProjectController extends Controller
         ];
 
         return $this->response(true, 'Project fetched successfully', $project, 200);
+    }
+    private function storageUrl($path)
+    {
+        return $path ? asset('storage/' . $path) : null;
     }
 }

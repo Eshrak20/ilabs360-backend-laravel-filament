@@ -21,7 +21,7 @@ class GalleryImageForm
                     Grid::make(2)->schema([
 
                         TextInput::make('title')
-                            ->required()
+                            // ->required()
                             ->maxLength(255),
 
                         TextInput::make('place')
@@ -33,6 +33,7 @@ class GalleryImageForm
                         ->columnSpanFull(),
 
                     FileUpload::make('image')
+                        ->required()
                         ->image()
                         ->disk('public')
                         ->directory('gallery-images')

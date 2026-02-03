@@ -13,6 +13,7 @@ class StaffController extends Controller
             ->whereHas('user', function ($query) {
                 $query->where('web_view', true);
             })
+            ->orderBy('position', 'asc') // ✅ LOW position first (1,2,3...)
             ->get();
 
         return response()->json([

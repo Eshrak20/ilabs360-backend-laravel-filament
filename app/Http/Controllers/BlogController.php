@@ -11,23 +11,24 @@ class BlogController extends Controller
     // Get all published blogs with pagination
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10); // default 10 per page
+        $perPage = $request->input('per_page', 10);
 
         $blogs = Blog::query()
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->with([
                 'category:id,name',
-                // Only necessary staff fields + user
-                'staff:id,user_id,name,email,image',
-                'staff.user:id,name,email'
+                'staff' => function($query) {
+                    // Load all staff columns
+                    $query->with('user'); // include related user
+                }
             ])
             ->latest('published_at')
             ->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $blogs->items(), // current page items
+            'data' => $blogs->items(),
             'meta' => [
                 'current_page' => $blogs->currentPage(),
                 'last_page' => $blogs->lastPage(),
@@ -45,8 +46,10 @@ class BlogController extends Controller
             ->whereNotNull('published_at')
             ->with([
                 'category:id,name',
-                'staff:id,user_id,name,email,image',
-                'staff.user:id,name,email'
+                'staff' => function($query) {
+                    // Load **all staff columns** and related user
+                    $query->with('user');
+                }
             ])
             ->firstOrFail();
 
